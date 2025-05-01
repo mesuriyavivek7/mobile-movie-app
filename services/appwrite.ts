@@ -21,8 +21,6 @@ export const  updateSearchCount = async (query : string, movie:Movie) => {
     if(result.documents.length > 0){
         const existingMovie = result.documents[0]
 
-        console.log('existing movie---->',existingMovie)
-
         await database.updateDocument(
             DATABASE_ID,
             COLLECTION_ID,
@@ -32,7 +30,6 @@ export const  updateSearchCount = async (query : string, movie:Movie) => {
             }
         )
     } else {
-        console.log("new document created.")
         await database.createDocument(DATABASE_ID,COLLECTION_ID, ID.unique(),{
             searchTerm: query,
             movie_id:movie.id,
@@ -45,4 +42,16 @@ export const  updateSearchCount = async (query : string, movie:Movie) => {
       console.log(err)
       throw err
    }
+}
+
+export const getTrandingMovies = async (): Promise<TrendingMovie[] | undefined> => {
+    try{
+       const result = await database.listDocuments(DATABASE_ID,COLLECTION_ID, [
+            Query.limit(5),
+            Query.orderDesc('count')
+       ])    
+       return result.documents as unknown as TrendingMovie[];
+    }catch(err){
+        console.log(err)
+    }
 }
